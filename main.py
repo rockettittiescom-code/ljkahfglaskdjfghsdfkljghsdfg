@@ -70,7 +70,7 @@ async def reload_bot(interaction: discord.Interaction):
         return await interaction.response.send_message("> You aren't authorized to reload the bot.", ephemeral=True)
 
     # Send confirmation before restarting
-    await interaction.response.send_message("> Bot reload has been triggered. Restarting via PM2 now...", ephemeral=False)
+    await interaction.response.send_message("> Bot reload has been triggered. Restarting via PM2 now...", ephemeral=True)
 
     try:
         # Run PM2 restart using ID and shell=True for Windows compatibility
