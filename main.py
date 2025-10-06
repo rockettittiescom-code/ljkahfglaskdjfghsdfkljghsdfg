@@ -546,6 +546,71 @@ async def gif_cmd(interaction: discord.Interaction, image: discord.Attachment = 
         await interaction.followup.send("> An unexpected error occurred while converting the image.", ephemeral=True)
         print(f"Error in /gif: {str(e)}")
 
+@bot.tree.command(
+    name="caption",
+    description="Add a caption to an image and convert it to GIF"
+)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(
+    image="Upload an image",
+    url="Or provide an image link",
+    text="Text to add as a caption"
+)
+@command_cooldown
+async def caption_cmd(interaction: discord.Interaction, text: str, image: discord.Attachment = None, url: str = None):
+    if not has_access(interaction.user.id):
+        return await interaction.response.send_message("> You don't have access. Ask the owner.", ephemeral=True)
+
+    if not image and not url:
+        return await interaction.response.send_message("> You must upload an image or provide a link.", ephemeral=True)
+
+    await interaction.response.defer()
+
+    try:
+        import aiohttp, io
+        from PIL import Image, ImageDraw, ImageFont
+
+        image_url = url or image.url
+
+        # Download image
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as resp:
+                if resp.status != 200:
+                    return await interaction.followup.send("> Failed to download the image.", ephemeral=True)
+                data = await resp.read()
+
+        img = Image.open(io.BytesIO(data)).convert("RGBA")
+
+        # Create a new image with extra space at the bottom for caption
+        caption_height = max(30, img.height // 10)  # ~1 inch or 1/10th of image height
+        new_img = Image.new("RGBA", (img.width, img.height + caption_height), (0, 0, 0, 0))
+        new_img.paste(img, (0, 0))
+
+        # Draw text
+        draw = ImageDraw.Draw(new_img)
+        try:
+            font = ImageFont.truetype("arial.ttf", caption_height - 10)
+        except:
+            font = ImageFont.load_default()
+
+        text_width, text_height = draw.textsize(text, font=font)
+        text_x = (img.width - text_width) // 2
+        text_y = img.height + (caption_height - text_height) // 2
+
+        draw.text((text_x, text_y), text, font=font, fill="white")
+
+        # Save as GIF
+        gif_bytes = io.BytesIO()
+        new_img.save(gif_bytes, format="GIF")
+        gif_bytes.seek(0)
+
+        await interaction.followup.send(file=discord.File(gif_bytes, "captioned.gif"))
+
+    except Exception as e:
+        await interaction.followup.send("> An error occurred while adding the caption.", ephemeral=True)
+        print(f"Error in /caption: {e}")
+
+
 @bot.tree.command(name="nightyauth", description="Power nighty auth")
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @command_cooldown
