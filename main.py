@@ -582,7 +582,7 @@ async def caption_cmd(interaction: discord.Interaction, text: str, image: discor
         img = Image.open(io.BytesIO(data)).convert("RGBA")
 
         # Create a new image with extra space at the bottom for caption
-        caption_height = max(30, img.height // 10)  # ~1 inch or 1/10th of image height
+        caption_height = max(30, img.height // 10)
         new_img = Image.new("RGBA", (img.width, img.height + caption_height), (0, 0, 0, 0))
         new_img.paste(img, (0, 0))
 
@@ -593,7 +593,11 @@ async def caption_cmd(interaction: discord.Interaction, text: str, image: discor
         except:
             font = ImageFont.load_default()
 
-        text_width, text_height = draw.textsize(text, font=font)
+        # Calculate text size using textbbox
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+
         text_x = (img.width - text_width) // 2
         text_y = img.height + (caption_height - text_height) // 2
 
@@ -609,7 +613,6 @@ async def caption_cmd(interaction: discord.Interaction, text: str, image: discor
     except Exception as e:
         await interaction.followup.send("> An error occurred while adding the caption.", ephemeral=True)
         print(f"Error in /caption: {e}")
-
 
 @bot.tree.command(name="nightyauth", description="Power nighty auth")
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
