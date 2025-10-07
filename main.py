@@ -217,6 +217,7 @@ async def help_cmd(interaction: discord.Interaction):
             "> `/brokenwebview` — Fix for broken WebView\n"
             "> `/loading` — Fix infinite loading problems\n"
             "> `/cmd` — Fix CMD prompt issues\n"
+            "> `/filepath — Whats the path for nighty?\n"
             "> `/safe` — Nighty safety information\n"
             "> `/ticket` — How to create a support ticket\n"
             "> `/discordfix` — Fix Discord links opening in Canary\n"
@@ -331,7 +332,7 @@ async def filepath(interaction: discord.Interaction, ping: discord.User = None):
     if not has_access(interaction.user.id):
         return await interaction.response.send_message("> You dont have access gng .. ask the owner.", ephemeral=True)
 
-    embed = discord.Embed(title="Nighty CMD Prompt Fix", color=embed_color)
+    embed = discord.Embed(title="Nighty File Path", color=embed_color)
     embed.description = (
         "> 1. Press `WIN + R`\n"
         "> 2. Type `%appdata%`\n"
