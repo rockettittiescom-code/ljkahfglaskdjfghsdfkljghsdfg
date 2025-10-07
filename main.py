@@ -323,6 +323,22 @@ async def cmd_fix(interaction: discord.Interaction, ping: discord.User = None):
     )
     await send_embed_with_ping(interaction, embed, ping)
 
+@bot.tree.command(name="filepath", description="File path to find nighty files")
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(ping="Optional: Mention someone outside the embed")
+@command_cooldown
+async def filepath(interaction: discord.Interaction, ping: discord.User = None):
+    if not has_access(interaction.user.id):
+        return await interaction.response.send_message("> You dont have access gng .. ask the owner.", ephemeral=True)
+
+    embed = discord.Embed(title="Nighty CMD Prompt Fix", color=embed_color)
+    embed.description = (
+        "> 1. Press `WIN + R`\n"
+        "> 2. Type `%appdata%`\n"
+        "> 3. Find `Nighty Selfbot`"
+    )
+    await send_embed_with_ping(interaction, embed, ping)
+
 @bot.tree.command(name="rpc", description="Fix for Rich Presence not showing")
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(ping="Optional: Mention someone outside the embed")
